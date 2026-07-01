@@ -55,14 +55,18 @@
   }
 
   h1.headline{
-    text-align:center;
-    font-size:clamp(30px,4.4vw,54px);
-    font-weight:700;
-    line-height:1.15;
-    margin:0 0 52px;
-    letter-spacing:-0.01em;
-  }
-  h1.headline .accent{color:var(--orange);}
+  text-align:center;
+  font-size:clamp(26px,3.6vw,46px);
+  font-weight:500;
+  line-height:1.2;
+  margin:0 0 52px;
+  letter-spacing:-0.01em;
+  white-space:nowrap;
+}
+h1.headline .accent{color:var(--orange);font-weight:500;}
+@media (max-width:700px){
+  h1.headline{white-space:normal;}
+}
 
   .grid{
     display:grid;
