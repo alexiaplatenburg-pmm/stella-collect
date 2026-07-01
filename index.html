@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stella Collect Impact Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg:#03121b;
+    --card-bg:#0a1e2b;
+    --card-border:rgba(159,224,255,0.14);
+    --orange:#FF6918;
+    --green:#ACE57F;
+    --blue:#9FE0FF;
+    --text:#ffffff;
+    --text-muted:rgba(255,255,255,0.62);
+    --text-faint:rgba(255,255,255,0.4);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans', 'Causten', Arial, sans-serif;
+    padding:56px 24px 40px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1280px;margin:0 auto;}
+
+  /* Eyebrow badge */
+  .eyebrow-wrap{display:flex;justify-content:center;margin-bottom:36px;}
+  .eyebrow{
+    position:relative;
+    display:inline-block;
+    padding:14px 28px 16px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:10px;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.14em;
+    color:var(--text);
+    overflow:hidden;
+  }
+  .eyebrow::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:3px;
+    background:linear-gradient(90deg,var(--orange),var(--green),var(--blue));
+  }
+
+  h1.headline{
+    text-align:center;
+    font-size:clamp(30px,4.4vw,54px);
+    font-weight:700;
+    line-height:1.15;
+    margin:0 0 52px;
+    letter-spacing:-0.01em;
+  }
+  h1.headline .accent{color:var(--orange);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:56px;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr;gap:40px;}
+  }
+
+  .section-label{
+    display:flex;align-items:center;gap:10px;
+    font-size:13px;font-weight:700;letter-spacing:0.12em;
+    color:var(--text);text-transform:uppercase;
+    margin:0 0 28px;
+  }
+  .section-label .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex:none;}
+
+  .input-group{margin-bottom:36px;}
+  .input-group:last-child{margin-bottom:0;}
+  .input-label{font-size:19px;font-weight:700;margin:0 0 6px;line-height:1.35;}
+  .input-help{font-size:14px;color:var(--text-muted);margin:0 0 16px;line-height:1.5;}
+
+  .slider-row{display:flex;align-items:center;gap:16px;}
+
+  input[type="range"]{
+    flex:1;
+    -webkit-appearance:none;
+    appearance:none;
+    height:6px;
+    border-radius:999px;
+    background:linear-gradient(90deg,var(--orange),var(--green) 50%,var(--blue));
+    outline:none;
+    cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:#ffffff;
+    border:3px solid var(--orange);
+    box-shadow:0 0 0 4px rgba(255,105,24,0.18), 0 2px 8px rgba(0,0,0,0.4);
+    cursor:pointer;
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:26px;height:26px;
+    border-radius:50%;
+    background:#ffffff;
+    border:3px solid var(--orange);
+    box-shadow:0 0 0 4px rgba(255,105,24,0.18), 0 2px 8px rgba(0,0,0,0.4);
+    cursor:pointer;
+    box-sizing:border-box;
+  }
+  input[type="range"]::-moz-range-track{
+    height:6px;border-radius:999px;
+    background:linear-gradient(90deg,var(--orange),var(--green) 50%,var(--blue));
+  }
+
+  .number-box{
+    display:flex;align-items:center;gap:8px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:10px;
+    padding:10px 14px;
+    flex:none;
+    min-width:118px;
+  }
+  .number-box input[type="number"]{
+    width:76px;
+    background:none;border:none;outline:none;
+    color:var(--text);
+    font-family:inherit;
+    font-size:20px;font-weight:700;
+    -moz-appearance:textfield;
+  }
+  .number-box input[type="number"]::-webkit-outer-spin-button,
+  .number-box input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .number-box .unit{font-size:15px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+
+  /* Callout */
+  .callout{
+    background:rgba(159,224,255,0.06);
+    border:1px solid rgba(159,224,255,0.2);
+    border-radius:14px;
+    padding:18px 22px;
+    font-size:15px;
+    line-height:1.6;
+    color:var(--text-muted);
+    margin-bottom:28px;
+  }
+  .callout strong{color:var(--blue);font-weight:700;}
+
+  /* Hero card */
+  .card{
+    position:relative;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-40%;left:-20%;
+    width:70%;height:100%;
+    background:radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+    pointer-events:none;
+  }
+
+  .hero-card{
+    background:linear-gradient(160deg, rgba(172,229,127,0.14), rgba(10,30,43,0.4));
+    border-color:rgba(172,229,127,0.25);
+    padding:40px 36px 36px;
+    text-align:center;
+    margin-bottom:20px;
+  }
+  .hero-label{
+    font-size:13px;font-weight:700;letter-spacing:0.12em;
+    color:var(--green);text-transform:uppercase;
+    margin:0 0 14px;position:relative;z-index:1;
+  }
+  .hero-intro{
+    font-size:16px;color:var(--text-muted);
+    max-width:420px;margin:0 auto 20px;line-height:1.55;
+    position:relative;z-index:1;
+  }
+  .hero-value{
+    font-size:clamp(46px,6vw,72px);
+    font-weight:800;letter-spacing:-0.02em;
+    margin:0 0 18px;position:relative;z-index:1;
+  }
+  .hero-tagline{
+    font-style:italic;font-size:15px;color:var(--green);
+    opacity:0.85;margin:0;position:relative;z-index:1;
+  }
+
+  .chip-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .chip{
+    padding:22px 20px;text-align:center;
+  }
+  .chip-label{
+    font-size:12px;font-weight:700;letter-spacing:0.1em;
+    color:var(--text-faint);text-transform:uppercase;
+    margin:0 0 10px;position:relative;z-index:1;
+  }
+  .chip-value{
+    font-size:26px;font-weight:800;margin:0;position:relative;z-index:1;
+  }
+
+  .assumptions{
+    margin-top:52px;
+    text-align:center;
+    font-size:13px;
+    line-height:1.7;
+    color:var(--text-faint);
+    max-width:920px;
+    margin-left:auto;margin-right:auto;
+  }
+  .assumptions strong{color:var(--text-muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow-wrap">
+    <div class="eyebrow">STELLA COLLECT IMPACT CALCULATOR</div>
+  </div>
+
+  <h1 class="headline">How Much Could You Recapture With <span class="accent">Stella Collect</span>?</h1>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <div>
+      <div class="section-label"><span class="dot"></span>YOUR CURRENT NUMBERS</div>
+
+      <div class="input-group">
+        <p class="input-label">How many people work on collections?</p>
+        <p class="input-help">Include anyone who spends time on collections calls, follow-ups, or dispute resolution.</p>
+        <div class="slider-row">
+          <input type="range" id="employeesRange" min="1" max="20" step="1" value="1" class="slider">
+          <div class="number-box"><input type="number" id="employeesNumber" min="1" max="200" value="1"><span class="unit">people</span></div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <p class="input-label">How many hours a week does each person spend on it?</p>
+        <p class="input-help">Time spent chasing payments, sending reminders, and resolving disputes.</p>
+        <div class="slider-row">
+          <input type="range" id="hoursRange" min="5" max="40" step="1" value="40" class="slider">
+          <div class="number-box"><input type="number" id="hoursNumber" min="1" max="80" value="40"><span class="unit">hrs/wk</span></div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <p class="input-label">What's the average salary for this role?</p>
+        <p class="input-help">Fully loaded annual cost, including benefits.</p>
+        <div class="slider-row">
+          <input type="range" id="salaryRange" min="30000" max="150000" step="5000" value="65000" class="slider">
+          <div class="number-box"><input type="number" id="salaryNumber" min="0" max="1000000" step="1000" value="65000"><span class="unit">$</span></div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <p class="input-label">What's your annual revenue?</p>
+        <p class="input-help">Used to estimate how much cash is tied up in unpaid invoices.</p>
+        <div class="slider-row">
+          <input type="range" id="revenueRange" min="1000000" max="500000000" step="1000000" value="75000000" class="slider">
+          <div class="number-box"><input type="number" id="revenueNumber" min="0" max="10000000000" step="100000" value="75000000"><span class="unit">$</span></div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <p class="input-label">What's your current Days Sales Outstanding (DSO)?</p>
+        <p class="input-help">The average number of days it takes to collect payment after invoicing.</p>
+        <div class="slider-row">
+          <input type="range" id="dsoRange" min="10" max="120" step="1" value="50" class="slider">
+          <div class="number-box"><input type="number" id="dsoNumber" min="1" max="365" value="50"><span class="unit">days</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUTS -->
+    <div>
+      <div class="callout">
+        Your team is spending <strong id="calloutHours">40</strong> hours a week chasing payments. Stella Collect could give back <strong id="calloutReclaimed">32</strong> of those hours &mdash; every week.
+      </div>
+
+      <div class="card hero-card">
+        <p class="hero-label">Estimated Annual Revenue Impact</p>
+        <p class="hero-intro">Without adding headcount, you can recapture</p>
+        <p class="hero-value" id="heroValue">+$153K</p>
+        <p class="hero-tagline">Faster collections, freer cash, less time spent chasing what's already yours.</p>
+      </div>
+
+      <div class="chip-row">
+        <div class="card chip">
+          <p class="chip-label">Weekly Hours Reclaimed</p>
+          <p class="chip-value" id="chipHours">32 hrs</p>
+        </div>
+        <div class="card chip">
+          <p class="chip-label">Working Capital Freed</p>
+          <p class="chip-value" id="chipCapital">$1,438,356</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="assumptions"><strong>Model assumptions:</strong> Stella Collect reduces time spent on manual collections work by 80% &middot; Stella Collect shortens DSO by an average of 7 days &middot; working capital freed is valued at a 7% cost of capital, a conservative industry benchmark.</p>
+
+</div>
+
+<script>
+  function $(id){ return document.getElementById(id); }
+
+  const els = {
+    employeesRange: $('employeesRange'), employeesNumber: $('employeesNumber'),
+    hoursRange: $('hoursRange'), hoursNumber: $('hoursNumber'),
+    salaryRange: $('salaryRange'), salaryNumber: $('salaryNumber'),
+    revenueRange: $('revenueRange'), revenueNumber: $('revenueNumber'),
+    dsoRange: $('dsoRange'), dsoNumber: $('dsoNumber'),
+  };
+
+  const FIXED = {
+    timeReduction: 0.80,
+    dsoReduction: 7,
+    costOfCapital: 0.07
+  };
+
+  function syncPair(rangeEl, numberEl, onChange){
+    rangeEl.addEventListener('input', () => { numberEl.value = rangeEl.value; onChange(); });
+    numberEl.addEventListener('input', () => {
+      let v = parseFloat(numberEl.value);
+      if(isNaN(v)) return;
+      const min = parseFloat(rangeEl.min), max = parseFloat(rangeEl.max);
+      rangeEl.value = Math.min(Math.max(v, min), max);
+      onChange();
+    });
+  }
+
+  function fmtMoney(n){
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function fmtShort(n){
+    const sign = n < 0 ? '-' : '+';
+    n = Math.abs(n);
+    if(n >= 1000000) return sign + '$' + (n/1000000).toFixed(2) + 'M';
+    if(n >= 1000) return sign + '$' + Math.round(n/1000) + 'K';
+    return sign + '$' + Math.round(n);
+  }
+
+  let animFrame = null;
+  function animateValue(el, from, to, formatter, duration){
+    duration = duration || 500;
+    const start = performance.now();
+    if(animFrame) cancelAnimationFrame(animFrame);
+    function step(now){
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = from + (to - from) * eased;
+      el.textContent = formatter(val);
+      if(p < 1) animFrame = requestAnimationFrame(step);
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  let lastHero = null;
+
+  function calculate(){
+    const employees = parseFloat(els.employeesNumber.value) || 0;
+    const hours = parseFloat(els.hoursNumber.value) || 0;
+    const salary = parseFloat(els.salaryNumber.value) || 0;
+    const revenue = parseFloat(els.revenueNumber.value) || 0;
+    const dso = parseFloat(els.dsoNumber.value) || 0;
+
+    const annualSpend = employees * (hours / 40) * salary;
+    const laborSavings = annualSpend * FIXED.timeReduction;
+
+    const workingCapitalImprovement = (FIXED.dsoReduction / 365) * revenue;
+    const cashFlowSavings = FIXED.costOfCapital * workingCapitalImprovement;
+
+    const totalAnnualBenefit = laborSavings + cashFlowSavings;
+
+    const weeklyHoursReclaimed = hours * employees * FIXED.timeReduction;
+
+    // Hero animated count-up
+    const from = lastHero === null ? 0 : lastHero;
+    animateValue($('heroValue'), from, totalAnnualBenefit, fmtShort, 500);
+    lastHero = totalAnnualBenefit;
+
+    $('chipHours').textContent = (Math.round(weeklyHoursReclaimed * 10) / 10) + ' hrs';
+    $('chipCapital').textContent = fmtMoney(workingCapitalImprovement);
+
+    $('calloutHours').textContent = Math.round(hours * employees);
+    $('calloutReclaimed').textContent = Math.round(weeklyHoursReclaimed);
+  }
+
+  Object.keys(els).forEach(key => {
+    if(key.endsWith('Range')){
+      const base = key.replace('Range','');
+      syncPair(els[base+'Range'], els[base+'Number'], calculate);
+    }
+  });
+
+  calculate();
+</script>
+</body>
+</html>
